@@ -1,11 +1,14 @@
 import 'package:date_picker_timeline/date_picker_timeline.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:weather/database/DarkModeDB.dart';
 import 'AddTask.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class HomePage extends StatefulWidget {
-  const HomePage({super.key});
+  bool dark_mode = false;
+
+  HomePage({super.key, required this.dark_mode});
 
   @override
   _HomePageState createState() => _HomePageState();
@@ -13,11 +16,13 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   Color _backgroundColor = Colors.white;
-  late bool _isDarkMode = false;
+  late bool _isDarkMode;
+  final darkmodedb = Darkmodedb();
 
   @override
   void initState() {
     super.initState();
+    _isDarkMode = widget.dark_mode;
   }
 
   @override
@@ -42,6 +47,7 @@ class _HomePageState extends State<HomePage> {
                         onTap: () {
                           setState(() {
                             _isDarkMode = !_isDarkMode;
+                            insertDarkmode(_isDarkMode);
                           });
                         },
                         child: Icon(
@@ -89,7 +95,7 @@ class _HomePageState extends State<HomePage> {
                       ),
                       GestureDetector(
                         onTap: () {
-                          Navigator.push(context, MaterialPageRoute(builder: (context) => const AddTask()));
+                          Navigator.push(context, MaterialPageRoute(builder: (context) => AddTask(dark_mode: _isDarkMode,)));
                         },
                         child: Container(
                           margin: const EdgeInsets.only(right: 10),
@@ -146,5 +152,14 @@ class _HomePageState extends State<HomePage> {
         ),
       ),
     );
+  }
+
+  void insertDarkmode(bool dark_mode) async {
+    if(dark_mode == false) {
+      darkmodedb.upsertDarkMode(0);
+    }
+    else {
+      darkmodedb.upsertDarkMode(1);
+    }
   }
 }
