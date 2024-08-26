@@ -15,17 +15,18 @@ class Todotaskdb {
           date TEXT NOT NULL,
           start TEXT NOT NULL,
           end TEXT NOT NULL,
-          color TEXT NOT NULL
+          color TEXT NOT NULL,
+          status TEXT NOT NULL
         ) 
       '''
     );
   }
 
-  Future<int> create({required String title, required String description, required String date, required String start, required String end, required String color}) async{
+  Future<int> create({required String title, required String description, required String date, required String start, required String end, required String color, required String status}) async{
     final database = await Todotaskservice().database;
     return await database.rawInsert(
-      '''INSERT INTO $tableName (title, description, date, start, end, color) VALUES (?, ?, ?, ?, ?, ?) ''',
-      [title, description, date, start, end, color]
+      '''INSERT INTO $tableName (title, description, date, start, end, color, status) VALUES (?, ?, ?, ?, ?, ?, ?) ''',
+      [title, description, date, start, end, color, status]
     );
   }
 
@@ -46,4 +47,11 @@ class Todotaskdb {
     );
   }
 
+  Future<int> updatestatus({required String date, required String title , required String status}) async{
+    final database = await Todotaskservice().database;
+    return await database.rawUpdate(
+      '''UPDATE $tableName SET status = ? WHERE date = ? and title = ?''',
+      [status, date, title]
+    );
+  }
 }

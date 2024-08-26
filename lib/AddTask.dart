@@ -1,5 +1,9 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
+import 'package:flutter_styled_toast/flutter_styled_toast.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:weather/database/TodoTaskDB.dart';
 
 class AddTask extends StatefulWidget {
   final bool dark_mode;
@@ -11,8 +15,15 @@ class AddTask extends StatefulWidget {
 }
 
 class _AddTaskState extends State<AddTask> {
+  int _createsuccess = 0;
+
   TextEditingController _dateController = TextEditingController();
-  TextEditingController _timeController = TextEditingController();
+  TextEditingController _timeController_1 = TextEditingController();
+  TextEditingController _timeController_2 = TextEditingController();
+  TextEditingController _taskNameController = TextEditingController();
+  TextEditingController _taskDescription = TextEditingController();
+
+  final todo_task = Todotaskdb();
 
   Color? _selectedColor, _mainColor;
   bool? _isDarkMode;
@@ -34,6 +45,32 @@ class _AddTaskState extends State<AddTask> {
   @override
   Widget build(BuildContext context) {
     _isDarkMode! ? _mainColor = Colors.white : _mainColor = Colors.black;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if(_createsuccess == 1) {
+        showToast(
+          'Create Task Successfull!',
+          context: context,
+          animation: StyledToastAnimation.slideFromTop,
+          reverseAnimation: StyledToastAnimation.slideToTop,
+          position: StyledToastPosition.top,
+          duration: Duration(seconds: 3),
+          backgroundColor: Colors.green,
+        );
+        _createsuccess = 0;
+      }
+      else if(_createsuccess == 2) {
+        showToast(
+          'Create Task UnSuccessfull!',
+          context: context,
+          animation: StyledToastAnimation.slideFromTop,
+          reverseAnimation: StyledToastAnimation.slideToTop,
+          position: StyledToastPosition.top,
+          duration: Duration(seconds: 3),
+          backgroundColor: Colors.red,
+        );
+        _createsuccess = 0;
+      }
+    });
     return Stack(
       children: [
         Scaffold(
@@ -46,7 +83,14 @@ class _AddTaskState extends State<AddTask> {
                   GestureDetector(
                     onTap: () {
                       setState(() {
-                        _quit = true;
+                        print(_taskNameController.text);
+                        if(_taskNameController.text == '' && _taskDescription.text == '') {
+                          _quit = false;
+                          Navigator.pop(context);
+                        }
+                        else {
+                          _quit = true;
+                        }
                       });
                     },
                     child: Container(
@@ -84,6 +128,12 @@ class _AddTaskState extends State<AddTask> {
                   Container(
                     margin: const EdgeInsets.only(top: 10, left: 10, right: 10),
                     child: TextField(
+                      controller: _taskNameController,
+                      style: GoogleFonts.lato(
+                        fontSize: 15,
+                        fontWeight: FontWeight.normal,
+                        color: _mainColor,
+                      ),
                       decoration: InputDecoration(
                         hintText: 'Enter task name',
                         suffixIconColor: _mainColor,
@@ -108,12 +158,19 @@ class _AddTaskState extends State<AddTask> {
                   Container(
                     margin: const EdgeInsets.only(top: 10, left: 10, right: 10),
                     child: TextField(
+                      controller: _taskDescription,
+                      style: GoogleFonts.lato(
+                        fontSize: 15,
+                        fontWeight: FontWeight.normal,
+                        color: _mainColor,
+                      ),
                       decoration: InputDecoration(
                         hintText: 'Enter task description',
                         suffixIconColor: _mainColor,
                         iconColor: _mainColor,
-                        hintStyle: GoogleFonts.lato
-                          (fontSize: 15, fontWeight: FontWeight.normal, color: _mainColor),
+                        hintStyle: GoogleFonts.lato(
+                            fontSize: 15, fontWeight: FontWeight.normal, color: _mainColor
+                        ),
                         border: const OutlineInputBorder(borderRadius: BorderRadius.all(Radius.circular(15))),
                       ),
                     ),
@@ -165,13 +222,13 @@ class _AddTaskState extends State<AddTask> {
                                 ),
                               ),
                               TextField(
-                                controller: _timeController,
+                                controller: _timeController_1,
                                 readOnly: true,
-                                onTap: () => _selectTime(context),
+                                onTap: () => _selectTime(context, _timeController_1),
                                 decoration: InputDecoration(
                                   suffixIconColor: _mainColor,
                                   iconColor: _mainColor,
-                                  hintText: "10:41",
+                                  hintText: "Start",
                                   suffixIcon: const Icon(Icons.access_time),
                                   hintStyle: GoogleFonts.lato
                                     (fontSize: 15, fontWeight: FontWeight.normal, color: _mainColor),
@@ -196,12 +253,12 @@ class _AddTaskState extends State<AddTask> {
                               ),
                               TextField(
                                 readOnly: true,
-                                controller: _timeController,
-                                onTap: () => _selectTime(context),
+                                controller: _timeController_2,
+                                onTap: () => _selectTime(context, _timeController_2),
                                 decoration: InputDecoration(
                                   suffixIconColor: _mainColor,
                                   iconColor: _mainColor,
-                                  hintText: "11:41",
+                                  hintText: "End",
                                   suffixIcon: const Icon(Icons.access_time),
                                   hintStyle: GoogleFonts.lato(
                                     fontSize: 15, 
@@ -235,14 +292,17 @@ class _AddTaskState extends State<AddTask> {
                       children: [
                         Row(
                           children: <Widget>[
-                          _buildColorOption(Colors.red),
+                          _buildColorOption(const Color(0xFFFFAE3B)),
                           const SizedBox(width: 10,),
-                          _buildColorOption(Colors.yellow),
+                          _buildColorOption(const Color(0xFFF03957)),
                           const SizedBox(width: 10,),
-                          _buildColorOption(Colors.purple),
+                          _buildColorOption(const Color(0xFF4550E6)),
                           ]
                         ),
                         GestureDetector(
+                          onTap: () {
+                            CreateTask();
+                          },
                           child: Container(
                             margin: const EdgeInsets.only(right: 10),
                             height: 50,
@@ -293,59 +353,62 @@ class _AddTaskState extends State<AddTask> {
                 children: [
                   Container(
                     margin: const EdgeInsets.only(top: 20),
+                    height: 50,
                     child: const Text(
                       'Are you sure?',
                       style: TextStyle(fontSize: 30, color: Colors.black, fontWeight: FontWeight.bold)
                     ),
                   ),
-                  Column(
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    children: [
-                      GestureDetector(
-                        onTap: () => Navigator.pop(context),
-                        child: Container(
-                          margin: const EdgeInsets.only(top: 20),
-                          height: 50,
-                          width: 100,
-                          decoration: BoxDecoration(borderRadius: BorderRadius.circular(30), color: Colors.blue),
-                          child: Center(
-                            child: Text(
-                              'YES',
-                              style: GoogleFonts.lato(
-                                fontSize: 15,
-                                color: Colors.white
+                  Expanded(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      children: [
+                        GestureDetector(
+                          onTap: () => Navigator.pop(context),
+                          child: Container(
+                            margin: const EdgeInsets.only(top: 20),
+                            height: 50,
+                            width: 100,
+                            decoration: BoxDecoration(borderRadius: BorderRadius.circular(30), color: Colors.blue),
+                            child: Center(
+                              child: Text(
+                                'YES',
+                                style: GoogleFonts.lato(
+                                  fontSize: 15,
+                                  color: Colors.white
+                                ),
                               ),
                             ),
                           ),
                         ),
-                      ),
-                      GestureDetector(
-                        onTap: () => setState(() {
-                          _quit = false;
-                        }),
-                        child: Container(
-                          margin: const EdgeInsets.only(top: 10),
-                          height: 50,
-                          width: 150,
-                          decoration: BoxDecoration(borderRadius: BorderRadius.circular(15)),
-                          child: Center(
-                            child: Text(
-                              'NO',
-                              style: GoogleFonts.lato(
-                                fontSize: 15,
-                                color: Colors.blue
+                        GestureDetector(
+                          onTap: () => setState(() {
+                            _quit = false;
+                          }),
+                          child: Container(
+                            margin: const EdgeInsets.only(top: 10),
+                            height: 50,
+                            width: 150,
+                            decoration: BoxDecoration(borderRadius: BorderRadius.circular(15)),
+                            child: Center(
+                              child: Text(
+                                'NO',
+                                style: GoogleFonts.lato(
+                                  fontSize: 15,
+                                  color: Colors.blue
+                                ),
                               ),
                             ),
                           ),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   )
                 ],
               ),
             ),
           ),
-        )
+        ),
       ],
     );
   }
@@ -366,18 +429,25 @@ class _AddTaskState extends State<AddTask> {
     }
   }
 
-    Future<void> _selectTime(BuildContext context) async {
-    final TimeOfDay? pickedTime = await showTimePicker(
+  void _selectTime(BuildContext context, TextEditingController controller) async {
+    TimeOfDay? pickedTime = await showTimePicker(
       context: context,
       initialTime: TimeOfDay.now(),
+      builder: (BuildContext context, Widget? child) {
+        return MediaQuery(
+          data: MediaQuery.of(context).copyWith(alwaysUse24HourFormat: true),
+          child: child!,
+        );
+      },
     );
 
     if (pickedTime != null) {
       setState(() {
-        _timeController.text = pickedTime.format(context);
+        controller.text = formatTimeOfDay(pickedTime);
       });
     }
   }
+
 
   Widget _buildColorOption(Color color) {
     bool isSelected = _selectedColor == color;
@@ -404,5 +474,57 @@ class _AddTaskState extends State<AddTask> {
             : null,
       ),
     );
+  }
+
+  String formatTimeOfDay(TimeOfDay time) {
+    final hours = time.hour.toString().padLeft(2, '0');
+    final minutes = time.minute.toString().padLeft(2, '0');
+    return '$hours:$minutes';
+  }
+
+  void CreateTask() async {
+    bool _isOk = true;
+    num time1 = 0, time2 = 0, minute1 = 0, minute2 = 0;
+    
+    time1 = int.parse(_timeController_1.text[0]) * 10 + int.parse(_timeController_1.text[1]);
+    time2 = int.parse(_timeController_2.text[0]) * 10 + int.parse(_timeController_2.text[1]);
+
+    minute1 = int.parse(_timeController_1.text[3]) * 10 + int.parse(_timeController_1.text[4]);
+    minute2 = int.parse(_timeController_2.text[3]) * 10 + int.parse(_timeController_2.text[4]);
+
+    if(time1 > time2) {
+      _isOk = false;
+    }
+    else {
+      if(time1 == time2) {
+        if(minute1 > minute2) {
+          _isOk = false;
+        }
+      }
+    }
+
+    if(_taskNameController.text != '' && _taskDescription.text != '' && _isOk) {
+      todo_task.create(
+        title: _taskNameController.text,
+        description: _taskDescription.text,
+        date: _dateController.text,
+        start: _timeController_1.text,
+        end: _timeController_2.text,
+        color: colorToHex(_selectedColor!),
+        status: 'TODO'
+      );
+      setState(() {
+        _createsuccess = 1;
+      });
+    }
+    else {
+      setState(() {
+        _createsuccess = 2;
+      });
+    }
+  }
+
+  String colorToHex(Color color) {
+    return color.value.toRadixString(16).toUpperCase().padLeft(6, '0');
   }
 }

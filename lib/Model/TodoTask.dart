@@ -14,7 +14,9 @@ class Todotask {
 
   final String color;
 
-  const Todotask({required this.title, required this.description, required this.date, required this.start, required this.end, required this.color});
+  final String status;
+
+  const Todotask({required this.title, required this.description, required this.date, required this.start, required this.end, required this.color, required this.status});
 
   factory Todotask.fromSqfliteDatabase(Map<String, dynamic> map) => Todotask(
     title: map['title'],
@@ -22,6 +24,7 @@ class Todotask {
     date: map['date'],
     start: map['start'],
     end: map['end'],
-    color: map['color']
+    color: map['color'],
+    status: map['status']
   );
 }

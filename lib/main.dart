@@ -3,8 +3,12 @@ import 'package:sqflite/sqflite.dart';
 import 'package:weather/Model/DarkMode.dart';
 import 'package:weather/database/DarkModeDB.dart';
 import 'HomePage.dart';
+import 'package:weather/Local_Notification.dart';
 
-void main() {
+void main() async{
+  WidgetsFlutterBinding.ensureInitialized();
+  await LocalNotification.init();
+
   runApp(const MainApp());
 }
 
@@ -24,7 +28,14 @@ class _MainApp extends State<MainApp> {
   @override
   void initState() {
     super.initState();
+    listenToNofications();
     fetchAll();
+  }
+
+  listenToNofications() {
+    LocalNotification.onClickNotification.stream.listen((event) {
+      Navigator.push(context, MaterialPageRoute(builder: (context) => HomePage(dark_mode: _isDarkMode)));
+    });
   }
 
   @override
