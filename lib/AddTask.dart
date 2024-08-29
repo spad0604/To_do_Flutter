@@ -53,7 +53,7 @@ class _AddTaskState extends State<AddTask> {
           animation: StyledToastAnimation.slideFromTop,
           reverseAnimation: StyledToastAnimation.slideToTop,
           position: StyledToastPosition.top,
-          duration: Duration(seconds: 3),
+          duration: const Duration(seconds: 3),
           backgroundColor: Colors.green,
         );
         _createsuccess = 0;
@@ -83,14 +83,7 @@ class _AddTaskState extends State<AddTask> {
                   GestureDetector(
                     onTap: () {
                       setState(() {
-                        print(_taskNameController.text);
-                        if(_taskNameController.text == '' && _taskDescription.text == '') {
-                          _quit = false;
-                          Navigator.pop(context);
-                        }
-                        else {
-                          _quit = true;
-                        }
+                        Navigator.pop(context);
                       });
                     },
                     child: Container(
@@ -135,7 +128,7 @@ class _AddTaskState extends State<AddTask> {
                         color: _mainColor,
                       ),
                       decoration: InputDecoration(
-                        hintText: 'Enter task name',
+                        hintText: 'id',
                         suffixIconColor: _mainColor,
                         iconColor: _mainColor,
                         hintStyle: GoogleFonts.lato
@@ -224,6 +217,10 @@ class _AddTaskState extends State<AddTask> {
                               TextField(
                                 controller: _timeController_1,
                                 readOnly: true,
+                                style: GoogleFonts.lato(
+                                  color: _mainColor,
+                                  fontSize: 15
+                                ),
                                 onTap: () => _selectTime(context, _timeController_1),
                                 decoration: InputDecoration(
                                   suffixIconColor: _mainColor,
@@ -254,6 +251,10 @@ class _AddTaskState extends State<AddTask> {
                               TextField(
                                 readOnly: true,
                                 controller: _timeController_2,
+                                style: GoogleFonts.lato(
+                                  fontSize: 15,
+                                  color: _mainColor,
+                                ),
                                 onTap: () => _selectTime(context, _timeController_2),
                                 decoration: InputDecoration(
                                   suffixIconColor: _mainColor,
@@ -323,84 +324,6 @@ class _AddTaskState extends State<AddTask> {
                             ),
                           ),
                         )
-                      ],
-                    ),
-                  )
-                ],
-              ),
-            ),
-          ),
-        ),
-        Visibility(
-          visible: _quit,
-          child: Center(
-            child: Container(
-              height: 200,
-              width: 350,
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(15),
-                color: Colors.white,
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withOpacity(0.3), 
-                        spreadRadius: 2,
-                        blurRadius: 5, 
-                        offset: const Offset(0, 4), 
-                      ),
-                    ],
-                  ),
-              child: Column(
-                children: [
-                  Container(
-                    margin: const EdgeInsets.only(top: 20),
-                    height: 50,
-                    child: const Text(
-                      'Are you sure?',
-                      style: TextStyle(fontSize: 30, color: Colors.black, fontWeight: FontWeight.bold)
-                    ),
-                  ),
-                  Expanded(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      children: [
-                        GestureDetector(
-                          onTap: () => Navigator.pop(context),
-                          child: Container(
-                            margin: const EdgeInsets.only(top: 20),
-                            height: 50,
-                            width: 100,
-                            decoration: BoxDecoration(borderRadius: BorderRadius.circular(30), color: Colors.blue),
-                            child: Center(
-                              child: Text(
-                                'YES',
-                                style: GoogleFonts.lato(
-                                  fontSize: 15,
-                                  color: Colors.white
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
-                        GestureDetector(
-                          onTap: () => setState(() {
-                            _quit = false;
-                          }),
-                          child: Container(
-                            margin: const EdgeInsets.only(top: 10),
-                            height: 50,
-                            width: 150,
-                            decoration: BoxDecoration(borderRadius: BorderRadius.circular(15)),
-                            child: Center(
-                              child: Text(
-                                'NO',
-                                style: GoogleFonts.lato(
-                                  fontSize: 15,
-                                  color: Colors.blue
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
                       ],
                     ),
                   )

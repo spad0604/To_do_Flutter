@@ -278,10 +278,6 @@ class _HomePageState extends State<HomePage> {
     } catch (e) {
       print("Error occurred in searchbyday: $e");
     }
-
-    for(int i = 0; i < todo_list!.length; i++) {
-      print(todo_list![i].color);
-    }
   }
 
   void popup(String title, String date, String status, String? time) {

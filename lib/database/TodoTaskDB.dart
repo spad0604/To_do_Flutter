@@ -54,4 +54,12 @@ class Todotaskdb {
       [status, date, title]
     );
   }
+
+  Future<List<Todotask>> fetchAll() async {
+    final database = await Todotaskservice().database;
+    final todoTasks = await database.rawQuery(
+      '''SELECT * FROM $tableName'''
+    );
+    return todoTasks.map((todo) => Todotask.fromSqfliteDatabase(todo)).toList();
+  }
 }
